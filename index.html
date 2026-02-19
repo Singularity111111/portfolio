@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yannic Hu — Data Product Manager</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --bg: #0c0c0c;
+      --card: #151515;
+      --card-hover: #1a1a1a;
+      --border: #222;
+      --text: #f5f5f5;
+      --muted: #888;
+      --dim: #555;
+      --accent: #a78bfa;
+      --accent2: #c4b5fd;
+      --r: 28px;
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(255, 255, 255, .015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .015) 1px, transparent 1px),
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(167, 139, 250, .08), transparent),
+        radial-gradient(ellipse 50% 40% at 85% 50%, rgba(99, 102, 241, .05), transparent),
+        radial-gradient(ellipse 60% 50% at 10% 90%, rgba(139, 92, 246, .04), transparent);
+      background-size: 60px 60px, 60px 60px, 100% 100%, 100% 100%, 100% 100%;
+      background-attachment: fixed;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #000
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 32px
+    }
+
+    /* === Animations === */
+    .fade {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all .7s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    .fade.show {
+      opacity: 1;
+      transform: none
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translateX(0)
+      }
+
+      100% {
+        transform: translateX(-50%)
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .4
+      }
+
+      50% {
+        opacity: 1
+      }
+    }
+
+    /* === Nav === */
+    nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      background: rgba(21, 21, 21, .7);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 28px;
+      font-size: .82rem
+    }
+
+    nav .brand {
+      font-weight: 700;
+      letter-spacing: -.3px
+    }
+
+    nav a {
+      color: var(--muted);
+      transition: color .2s
+    }
+
+    nav a:hover {
+      color: var(--text)
+    }
+
+    nav .cta {
+      background: var(--accent);
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: .78rem;
+      transition: all .2s
+    }
+
+    nav .cta:hover {
+      transform: scale(1.05)
+    }
+
+    /* === Hero === */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 32px 80px;
+      position: relative
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(167, 139, 250, .06), transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-greeting {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-weight: 400
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1.05;
+      margin-bottom: 20px
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2), #e879f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 500px;
+      line-height: 1.8;
+      margin-bottom: 40px
+    }
+
+    .hero-sub strong {
+      color: var(--text);
+      font-weight: 500
+    }
+
+    .hero-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 100px;
+      background: var(--text);
+      color: #000;
+      font-weight: 600;
+      font-size: .9rem;
+      transition: all .25s
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(255, 255, 255, .1)
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      font-size: .72rem;
+      color: var(--dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 2s infinite
+    }
+
+    /* === Section === */
+    .section {
+      padding: 80px 0
+    }
+
+    .section-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .section-label {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -.5px
+    }
+
+    .section-sub {
+      font-size: .82rem;
+      color: var(--dim)
+    }
+
+    /* === Stats === */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 80px
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 36px 24px;
+      text-align: center;
+      transition: all .35s
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: #333
+    }
+
+    .stat-num {
+      font-size: 2.8rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1;
+      background: linear-gradient(180deg, var(--text) 30%, var(--dim));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .stat-label {
+      font-size: .72rem;
+      color: var(--dim);
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 500
+    }
+
+    /* === Project Cards (Framer/egeberkin style) === */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 36px;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+      transition: all .4s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: #333
+    }
+
+    .project-card.large {
+      grid-column: span 2;
+      min-height: 360px
+    }
+
+    /* 卡片顶部装饰渐变 */
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 180px;
+      opacity: .5;
+      pointer-events: none;
+      transition: opacity .4s
+    }
+
+    .project-card:nth-child(1)::before {
+      background: linear-gradient(135deg, rgba(167, 139, 250, .12), rgba(232, 121, 249, .08), transparent)
+    }
+
+    .project-card:nth-child(2)::before {
+      background: linear-gradient(135deg, rgba(34, 197, 94, .1), rgba(6, 182, 212, .08), transparent)
+    }
+
+    .project-card:nth-child(3)::before {
+      background: linear-gradient(135deg, rgba(245, 158, 11, .1), rgba(239, 68, 68, .06), transparent)
+    }
+
+    .project-card:nth-child(4)::before {
+      background: linear-gradient(135deg, rgba(6, 182, 212, .1), rgba(99, 102, 241, .08), transparent)
+    }
+
+    .project-card:nth-child(5)::before {
+      background: linear-gradient(135deg, rgba(236, 72, 153, .1), rgba(167, 139, 250, .08), transparent)
+    }
+
+    .project-card:hover::before {
+      opacity: .8
+    }
+
+    .pc-tag {
+      display: inline-block;
+      font-size: .62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 5px 14px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-bottom: 14px;
+      width: fit-content
+    }
+
+    .pc-number {
+      font-size: .65rem;
+      font-weight: 600;
+      color: var(--dim);
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .pc-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -.3px;
+      margin-bottom: 6px
+    }
+
+    .pc-desc {
+      font-size: .85rem;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    .pc-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap
+    }
+
+    .pc-chip {
+      font-size: .65rem;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(167, 139, 250, .08);
+      color: var(--accent);
+      border: 1px solid rgba(167, 139, 250, .12)
+    }
+
+    .pc-screenshot {
+      width: 100%;
+      margin-top: 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--card-hover);
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .72rem;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    .pc-screenshot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* === Marquee === */
+    .marquee-wrap {
+      overflow: hidden;
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 0 -32px
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 30s linear infinite
+    }
+
+    .marquee-item {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dim);
+      white-space: nowrap;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .marquee-item::after {
+      content: '·';
+      color: var(--border)
+    }
+
+    /* === About / Identity === */
+    .identity {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 48px
+    }
+
+    .id-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 40px;
+      transition: all .35s
+    }
+
+    .id-card:hover {
+      border-color: #333
+    }
+
+    .id-card.full {
+      grid-column: span 2
+    }
+
+    .id-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+      line-height: 1.3
+    }
+
+    .id-title em {
+      font-style: normal;
+      color: var(--accent)
+    }
+
+    .id-text {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.9
+    }
+
+    .id-text strong {
+      color: var(--text);
+      font-weight: 500
+    }
+
+    /* === Values (3列能力卡) === */
+    .values {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 48px
+    }
+
+    .value-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px;
+      transition: all .35s
+    }
+
+    .value-card:hover {
+      border-color: #333;
+      transform: translateY(-3px)
+    }
+
+    .value-num {
+      font-size: .6rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .value-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px
+    }
+
+    .value-card p {
+      font-size: .82rem;
+      color: var(--muted);
+      line-height: 1.7
+    }
+
+    /* === Timeline === */
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .tl-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: all .35s
+    }
+
+    .tl-card:hover {
+      border-color: #333
+    }
+
+    .tl-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 7px;
+      opacity: .5;
+    }
+
+    .tl-name {
+      font-size: .92rem;
+      font-weight: 600
+    }
+
+    .tl-role {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-top: 2px
+    }
+
+    .tl-date {
+      font-size: .65rem;
+      color: var(--dim);
+      margin-top: 4px
+    }
+
+    /* === Writing === */
+    .writing-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .wr-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all .35s;
+      gap: 16px
+    }
+
+    .wr-card:hover {
+      border-color: #333;
+      transform: translateX(4px)
+    }
+
+    .wr-title {
+      font-size: .9rem;
+      font-weight: 500
+    }
+
+    .wr-badge {
+      font-size: .65rem;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: var(--card-hover);
+      color: var(--dim);
+      white-space: nowrap
+    }
+
+    /* === CTA === */
+    .cta-section {
+      text-align: center;
+      padding: 100px 32px;
+      position: relative
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(167, 139, 250, .06), transparent 70%);
+      pointer-events: none
+    }
+
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      position: relative
+    }
+
+    .cta-section p {
+      font-size: .92rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      position: relative
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      border-radius: 100px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: .9rem;
+      transition: all .25s;
+      position: relative
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(167, 139, 250, .3)
+    }
+
+    /* === Footer === */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .7rem;
+      color: var(--dim);
+      border-top: 1px solid var(--border)
+    }
+
+    /* === 响应式 === */
+    @media(max-width:768px) {
+      .wrap {
+        padding: 0 20px
+      }
+
+      nav {
+        padding: 8px 20px;
+        gap: 16px;
+        font-size: .75rem
+      }
+
+      .hero h1 {
+        font-size: 2.8rem;
+        letter-spacing: -1.5px
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .projects-grid {
+        grid-template-columns: 1fr
+      }
+
+      .project-card.large {
+        grid-column: span 1
+      }
+
+      .identity {
+        grid-template-columns: 1fr
+      }
+
+      .id-card.full {
+        grid-column: span 1
+      }
+
+      .values {
+        grid-template-columns: 1fr
+      }
+
+      .timeline-grid {
+        grid-template-columns: 1fr
+      }
+
+      .marquee-item {
+        font-size: .9rem
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <span class="brand">Yannic Hu</span>
+    <a href="#projects">Projects</a>
+    <a href="#about">About</a>
+    <a href="#contact" class="cta">Contact me</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero fade">
+    <div class="hero-greeting">Hello, I'm Yannic</div>
+    <h1>AI Product Builder<br><em>& Data Engineer</em></h1>
+    <p class="hero-sub">
+      正在探索 <strong>多Agent协作</strong> 。
+    </p>
+    <a class="hero-btn" href="mailto:616661752@qq.com">Contact me</a>
+    <div class="hero-scroll">scroll ↓</div>
+  </section>
+
+  <div class="wrap">
+    <div class="stats-row fade">
+      <div class="stat-card">
+        <div class="stat-num">3</div>
+        <div class="stat-label">AI Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">25万+</div>
+        <div class="stat-label">Words of PRD</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">250+</div>
+        <div class="stat-label">Platforms</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">7</div>
+        <div class="stat-label">Countries</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item">数据仓库设计</span>
+      <span class="marquee-item">指标体系构建</span>
+      <span class="marquee-item">BI 可视化</span>
+      <span class="marquee-item">AI 预测系统</span>
+      <span class="marquee-item">LLM 应用</span>
+      <span class="marquee-item">ETL 流程</span>
+      <span class="marquee-item">风控引擎</span>
+      <span class="marquee-item">Agent 架构</span>
+      <span class="marquee-item">PRD 撰写</span>
+      <span class="marquee-item">Python</span>
+      <span class="marquee-item">SQL</span>
+      <span class="marquee-item">数据仓库设计</span>
+      <span class="marquee-item">指标体系构建</span>
+      <span class="marquee-item">BI 可视化</span>
+      <span class="marquee-item">AI 预测系统</span>
+      <span class="marquee-item">LLM 应用</span>
+      <span class="marquee-item">ETL 流程</span>
+      <span class="marquee-item">风控引擎</span>
+      <span class="marquee-item">Agent 架构</span>
+      <span class="marquee-item">PRD 撰写</span>
+      <span class="marquee-item">Python</span>
+      <span class="marquee-item">SQL</span>
+    </div>
+  </div>
+
+  <!-- AI Projects -->
+  <div class="wrap">
+    <section class="section" id="projects">
+      <div class="section-top fade">
+        <div class="section-label">AI Projects</div>
+        <div class="section-sub">个人 AI 产品 · 独立设计与开发</div>
+      </div>
+
+      <div class="projects-grid">
+        <div class="project-card large fade">
+          <span class="pc-tag">Exploring · Multi-Agent</span>
+          <div class="pc-number">01</div>
+          <div class="pc-title">多Agent协作数据分析系统</div>
+          <div class="pc-desc">正在探索的方向——多Agent协同架构（分析Agent / 规划Agent /
+            回放Agent），8层数据架构，LLM微调管线（SFT→DPO，v7迭代）。让AI理解业务逻辑、自主分析数据、输出可执行的决策建议。</div>
+          <div class="pc-meta"><span class="pc-chip">Multi-Agent</span><span class="pc-chip">LLM Fine-tuning</span><span
+              class="pc-chip">SFT+DPO</span><span class="pc-chip">v7迭代</span></div>
+          <div class="pc-screenshot"><img src="screenshots/multi_agent_system.png" alt="多Agent协作系统"></div>
+
+        </div>
+
+        <div class="project-card fade">
+          <span class="pc-tag">Personal · PRD 10万+字</span>
+          <div class="pc-number">02</div>
+          <div class="pc-title">BTRS Pro</div>
+          <div class="pc-desc">A股AI实时数据监控系统。15种S/A/B三级监控规则 · 7阶段情绪周期模型 · 15步结构化思维链。完整PRD + 技术设计 + 可运行原型。</div>
+          <div class="pc-meta"><span class="pc-chip">AI</span><span class="pc-chip">PRD</span><span
+              class="pc-chip">原型</span><span class="pc-chip">Claude API</span></div>
+          <div class="pc-screenshot"><img src="screenshots/btrs_pro_frontend.png" alt="BTRS Pro实时监控"></div>
+        </div>
+
+
+        <div class="project-card fade">
+          <span class="pc-tag">Personal · Conway Automaton</span>
+          <div class="pc-number">03</div>
+          <div class="pc-title">IdeaForge</div>
+          <div class="pc-desc">AI Agent自治平台。Agent全生命周期状态机（启动→运行→降级→求生→复活），三层无服务器架构。5.4万字产品文档。</div>
+          <div class="pc-meta"><span class="pc-chip">Agent</span><span class="pc-chip">Serverless</span><span
+              class="pc-chip">状态机</span></div>
+          <div class="pc-screenshot"><img src="screenshots/ideaforge_live.png" alt="IdeaForge Agent平台"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Work Projects -->
+    <section class="section">
+      <div class="section-top fade">
+        <div class="section-label">Work</div>
+        <div class="section-sub">工作中的数据产品体系</div>
+      </div>
+
+      <div class="projects-grid">
+        <div class="project-card fade">
+          <span class="pc-tag">Flagship · AI + Data</span>
+          <div class="pc-number">W1</div>
+          <div class="pc-title">PFIS — 投后飞轮AI系统</div>
+          <div class="pc-desc">面向7国市场的AI驱动投后管理系统。6层KPI下钻 · 72特征引擎 · ML预测 + LLM决策 · 分析时效从3-5天→5分钟。</div>
+          <div class="pc-meta"><span class="pc-chip">React</span><span class="pc-chip">FastAPI</span><span
+              class="pc-chip">PostgreSQL</span><span class="pc-chip">10万+字PRD</span></div>
+          <div class="pc-screenshot"><img src="screenshots/monitor_dashboard_v2.png" alt="投后数据监控看板"></div>
+        </div>
+
+        <div class="project-card fade">
+          <span class="pc-tag">BI · Data Platform</span>
+          <div class="pc-number">W2</div>
+          <div class="pc-title">BI分析体系</div>
+          <div class="pc-desc">覆盖250+平台、60+指标的统一数据产品体系。日报 · KPI工作台 · 网红周报 · 数据工作台。</div>
+          <div class="pc-meta"><span class="pc-chip">Python</span><span class="pc-chip">Power BI</span><span
+              class="pc-chip">SQLite</span></div>
+          <div class="pc-screenshot"><img src="screenshots/data_workbench.png" alt="投后数据工作台"></div>
+        </div>
+
+        <div class="project-card fade">
+          <span class="pc-tag">Automation · 250+ Platforms</span>
+          <div class="pc-number">W3</div>
+          <div class="pc-title">全链路采集体系</div>
+          <div class="pc-desc">Selenium+Playwright驱动的250+平台数据自动采集 · 配置驱动架构 · 风控引擎。</div>
+          <div class="pc-meta"><span class="pc-chip">Selenium</span><span class="pc-chip">Playwright</span><span
+              class="pc-chip">42版本</span></div>
+          <div class="pc-screenshot"><img src="screenshots/kpi_processor.png" alt="KPI数据处理器"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Identity -->
+    <section class="section" id="about">
+      <div class="section-top fade">
+        <div class="section-label">About Me</div>
+      </div>
+      <div class="identity">
+        <div class="id-card full fade">
+          <div class="id-title">I am a <em>Data Product Builder</em><br>Who Never Takes the Usual Path</div>
+          <div class="id-text">
+            <p>大学学的 <strong>飞机制造技术</strong>，转专业考了第一名进 <strong>财务管理</strong>，后来读了 <strong>清华金融管理</strong>。从
+              <strong>老虎证券</strong> 的量化研究开始接触数据世界，在 <strong>启明创投</strong> 负责被投企业的数据产品建设，到现在为跨7国的互联网集团从零搭建数据体系。
+            </p>
+            <br>
+            <p>一直在做的事情就是一件：<strong>用数据帮人做更好的决策</strong>。</p>
+            <br>
+            <p>最近在深入研究AI如何真正嵌入数据产品——不是套壳ChatGPT，而是让AI理解业务逻辑、预测趋势、自动给出可执行的建议。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Values -->
+      <div class="values">
+        <div class="value-card fade">
+          <div class="value-num">01</div>
+          <h4>从0到1</h4>
+          <p>擅长在空白场景下搭建完整的数据产品体系，从需求分析到架构设计到落地交付。</p>
+        </div>
+        <div class="value-card fade">
+          <div class="value-num">02</div>
+          <h4>AI Native</h4>
+          <p>不是把AI当噱头，而是将ML预测、LLM决策真正嵌入产品链路，解决实际业务问题。</p>
+        </div>
+        <div class="value-card fade">
+          <div class="value-num">03</div>
+          <h4>文档驱动</h4>
+          <p>25万+字PRD输出能力，从需求文档到技术架构到交互原型，用文档驱动产品落地。</p>
+        </div>
+      </div>
+    </section>
+
+
+
+
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section" id="contact">
+    <h2>Let's Get in Touch</h2>
+    <p>期待与你的交流，一起探索数据产品的无限可能</p>
+    <a class="cta-btn" href="mailto:616661752@qq.com">Send an Email →</a>
+  </section>
+
+  <footer>
+    <div>© 2026 Yannic Hu · All rights reserved</div>
+  </footer>
+
+  <script>
+    const obs = new IntersectionObserver(e => { e.forEach(el => { if (el.isIntersecting) el.target.classList.add('show') }) }, { threshold: .08 });
+    document.querySelectorAll('.fade').forEach(el => obs.observe(el));
+  </script>
+
+</body>
+
+</html>

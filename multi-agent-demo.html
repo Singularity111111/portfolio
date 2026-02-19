@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Data Analysis System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 顶部导航 */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #a78bfa;
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: #555;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            color: #666;
+            text-decoration: none;
+            font-size: .8rem;
+            font-weight: 500;
+            letter-spacing: .5px;
+            transition: color .2s;
+        }
+
+        .nav-links a:hover {
+            color: #a78bfa;
+        }
+
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .75rem;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-dot::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .4;
+            }
+        }
+
+        /* 主体布局 */
+        .main {
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            height: calc(100vh - 53px);
+        }
+
+        /* 左侧 Agent 面板 */
+        .sidebar {
+            border-right: 1px solid rgba(255, 255, 255, .06);
+            padding: 24px 20px;
+        }
+
+        .sidebar-title {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .agent-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: border-color .2s;
+        }
+
+        .agent-card:hover {
+            border-color: rgba(167, 139, 250, .3);
+        }
+
+        .agent-card.active {
+            border-color: rgba(167, 139, 250, .5);
+            background: rgba(167, 139, 250, .04);
+        }
+
+        .agent-name {
+            font-weight: 600;
+            font-size: .85rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .agent-name .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .dot.green {
+            background: #4ade80;
+        }
+
+        .dot.yellow {
+            background: #fbbf24;
+        }
+
+        .dot.blue {
+            background: #60a5fa;
+        }
+
+        .agent-desc {
+            font-size: .7rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .agent-stats {
+            display: flex;
+            gap: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .65rem;
+            color: #888;
+        }
+
+        .agent-stats span {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        /* 中间主区域 */
+        .center {
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        .pipeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .pipeline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -.3px;
+        }
+
+        .pipeline-badge {
+            font-size: .65rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(74, 222, 128, .1);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, .15);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 数据流管线 */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 32px;
+        }
+
+        .pipe-node {
+            flex: 1;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 12px;
+            padding: 18px 16px;
+            text-align: center;
+            position: relative;
+        }
+
+        .pipe-node.active {
+            border-color: rgba(167, 139, 250, .4);
+            background: rgba(167, 139, 250, .05);
+        }
+
+        .pipe-label {
+            font-size: .6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .pipe-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .9rem;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        .pipe-arrow {
+            color: #333;
+            font-size: 1.2rem;
+            margin: 0 -4px;
+            flex-shrink: 0;
+        }
+
+        /* 分析结果卡片 */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .analysis-card {
+            background: rgba(255, 255, 255, .02);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .analysis-card-title {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            font-size: .78rem;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .metric-value.up {
+            color: #4ade80;
+        }
+
+        .metric-value.down {
+            color: #f87171;
+        }
+
+        .metric-value.neutral {
+            color: #a78bfa;
+        }
+
+        /* 决策输出 */
+        .decision-box {
+            background: rgba(167, 139, 250, .04);
+            border: 1px solid rgba(167, 139, 250, .15);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .decision-title {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #a78bfa;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .decision-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: .78rem;
+            line-height: 1.5;
+            color: #bbb;
+        }
+
+        .decision-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+            background: rgba(167, 139, 250, .15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .6rem;
+            color: #a78bfa;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* 右侧面板 */
+        .right-panel {
+            border-left: 1px solid rgba(255, 255, 255, .06);
+            padding: 24px 20px;
+        }
+
+        .panel-section {
+            margin-bottom: 28px;
+        }
+
+        .panel-title {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .log-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: .72rem;
+            line-height: 1.4;
+        }
+
+        .log-time {
+            font-family: 'JetBrains Mono', monospace;
+            color: #444;
+            white-space: nowrap;
+            font-size: .65rem;
+        }
+
+        .log-text {
+            color: #888;
+        }
+
+        .log-text strong {
+            color: #a78bfa;
+            font-weight: 500;
+        }
+
+        /* 微型图表 */
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 48px;
+            margin-top: 12px;
+        }
+
+        .bar {
+            flex: 1;
+            background: rgba(167, 139, 250, .25);
+            border-radius: 3px 3px 0 0;
+            min-height: 4px;
+            transition: height .3s;
+        }
+
+        .bar:nth-child(odd) {
+            background: rgba(167, 139, 250, .15);
+        }
+
+        /* 架构标识 */
+        .arch-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .6rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .06);
+            color: #666;
+            font-family: 'JetBrains Mono', monospace;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="logo">MADAS <span>v0.7</span></div>
+        <div class="nav-links">
+            <a href="#">Dashboard</a>
+            <a href="#" style="color:#a78bfa">Pipeline</a>
+            <a href="#">Agents</a>
+            <a href="#">Training</a>
+        </div>
+        <div class="status-dot">3 agents online</div>
+    </div>
+
+    <div class="main">
+        <!-- 左侧 Agent 列表 -->
+        <div class="sidebar">
+            <div class="sidebar-title">Active Agents</div>
+
+            <div class="agent-card active">
+                <div class="agent-name"><span class="dot green"></span>Analysis Agent</div>
+                <div class="agent-desc">数据特征提取 · 异常检测 · 趋势分析</div>
+                <div class="agent-stats">Tasks: <span>247</span> Acc: <span>94.3%</span></div>
+            </div>
+
+            <div class="agent-card">
+                <div class="agent-name"><span class="dot yellow"></span>Planning Agent</div>
+                <div class="agent-desc">任务分解 · 优先级排序 · 资源调度</div>
+                <div class="agent-stats">Plans: <span>89</span> Opt: <span>87.1%</span></div>
+            </div>
+
+            <div class="agent-card">
+                <div class="agent-name"><span class="dot blue"></span>Replay Agent</div>
+                <div class="agent-desc">历史回放 · 策略验证 · 效果评估</div>
+                <div class="agent-stats">Replays: <span>156</span> Win: <span>72.4%</span></div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <div class="sidebar-title">Architecture</div>
+                <div class="arch-tag">8-Layer Data</div>
+                <div class="arch-tag">SFT + DPO</div>
+                <div class="arch-tag">v7 Pipeline</div>
+                <div class="arch-tag">LLM Fine-tune</div>
+            </div>
+        </div>
+
+        <!-- 中间主区域 -->
+        <div class="center">
+            <div class="pipeline-header">
+                <div class="pipeline-title">Data Analysis Pipeline</div>
+                <div class="pipeline-badge">● Running</div>
+            </div>
+
+            <!-- 数据流管线 -->
+            <div class="pipeline">
+                <div class="pipe-node">
+                    <div class="pipe-label">Raw Data</div>
+                    <div class="pipe-value">250+</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-node active">
+                    <div class="pipe-label">Feature</div>
+                    <div class="pipe-value">72</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-node">
+                    <div class="pipe-label">Analysis</div>
+                    <div class="pipe-value">60+KPI</div>
+                </div>
+                <div class="pipe-arrow">→</div>
+                <div class="pipe-node">
+                    <div class="pipe-label">Decision</div>
+                    <div class="pipe-value">LLM</div>
+                </div>
+            </div>
+
+            <!-- 分析结果 -->
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="analysis-card-title">KPI Anomaly Detection</div>
+                    <div class="metric-row"><span>CPA 偏离度</span><span class="metric-value down">+23.7%</span></div>
+                    <div class="metric-row"><span>FTD 转化率</span><span class="metric-value up">-5.2%</span></div>
+                    <div class="metric-row"><span>ROAS 趋势</span><span class="metric-value up">↑ 稳定</span></div>
+                    <div class="metric-row"><span>LTV-7d 预测</span><span class="metric-value neutral">$142.8</span></div>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-card-title">Agent Collaboration</div>
+                    <div class="metric-row"><span>消息交换</span><span class="metric-value neutral">1,247</span></div>
+                    <div class="metric-row"><span>任务完成率</span><span class="metric-value up">96.8%</span></div>
+                    <div class="metric-row"><span>决策延迟</span><span class="metric-value up">
+                            < 2.3s</span>
+                    </div>
+                    <div class="metric-row"><span>模型版本</span><span class="metric-value neutral">v7-DPO</span></div>
+                </div>
+            </div>
+
+            <!-- LLM 决策输出 -->
+            <div class="decision-box">
+                <div class="decision-title">LLM Decision Output</div>
+                <div class="decision-item">
+                    <div class="decision-icon">!</div>
+                    <div>检测到 <strong>BR-MX 渠道</strong> CPA 异常偏高（+23.7%），建议暂停投放并排查落地页转化。置信度 94.3%</div>
+                </div>
+                <div class="decision-item">
+                    <div class="decision-icon">↑</div>
+                    <div><strong>IN-Delhi 区域</strong> FTD 持续增长，ROAS > 3.5，建议追加 15% 预算。历史准确率 89.2%</div>
+                </div>
+                <div class="decision-item">
+                    <div class="decision-icon">→</div>
+                    <div>LTV-7d 模型已更新至 v7-DPO，预测精度提升 <strong>12.4%</strong>（对比 v6-SFT）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 -->
+        <div class="right-panel">
+            <div class="panel-section">
+                <div class="panel-title">Agent Activity Log</div>
+                <div class="log-item"><span class="log-time">18:33</span><span
+                        class="log-text"><strong>Analysis</strong> 完成 BR-MX 异常检测</span></div>
+                <div class="log-item"><span class="log-time">18:32</span><span
+                        class="log-text"><strong>Planning</strong> 生成预算调整方案</span></div>
+                <div class="log-item"><span class="log-time">18:31</span><span class="log-text"><strong>Replay</strong>
+                        验证 IN 策略历史</span></div>
+                <div class="log-item"><span class="log-time">18:30</span><span
+                        class="log-text"><strong>Analysis</strong> 启动 60+ KPI 扫描</span></div>
+                <div class="log-item"><span class="log-time">18:28</span><span
+                        class="log-text"><strong>Planning</strong> 任务分解: 7 子任务</span></div>
+                <div class="log-item"><span class="log-time">18:25</span><span class="log-text"><strong>Replay</strong>
+                        加载 30d 历史数据</span></div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">Model Training</div>
+                <div class="log-item"><span class="log-time">v7</span><span class="log-text">DPO alignment ·
+                        <strong>+12.4%</strong></span></div>
+                <div class="log-item"><span class="log-time">v6</span><span class="log-text">SFT baseline · 82.9%</span>
+                </div>
+                <div class="log-item"><span class="log-time">v5</span><span class="log-text">Feature 72-dim ·
+                        78.3%</span></div>
+                <div class="log-item"><span class="log-time">v4</span><span class="log-text">Multi-agent init ·
+                        71.6%</span></div>
+
+                <div class="mini-chart">
+                    <div class="bar" style="height:35%"></div>
+                    <div class="bar" style="height:42%"></div>
+                    <div class="bar" style="height:38%"></div>
+                    <div class="bar" style="height:55%"></div>
+                    <div class="bar" style="height:62%"></div>
+                    <div class="bar" style="height:58%"></div>
+                    <div class="bar" style="height:72%"></div>
+                    <div class="bar" style="height:68%"></div>
+                    <div class="bar" style="height:78%"></div>
+                    <div class="bar" style="height:82%"></div>
+                    <div class="bar" style="height:85%"></div>
+                    <div class="bar" style="height:94%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
